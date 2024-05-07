@@ -7,6 +7,7 @@
  */
 
 #include <stdio.h>
+// #include "vga_framebuffer.h"
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -31,7 +32,8 @@ void read_note() {
 
 int main()
 {
-
+  vga_ball_arg_t vla;
+  int i;
   static const char filename[] = "/dev/notes";
 
 
