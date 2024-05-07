@@ -6,12 +6,12 @@
 
 // Define struct to store note state
 typedef struct {
-    bool green;    // Represents whether the green note is being input (true or false)
-    bool red;      // Represents whether the red note is being input (true or false)
-    bool yellow;   // Represents whether the yellow note is being input (true or false)
-    bool blue;     // Represents whether the blue note is being input (true or false)
-    bool orange;   // Represents whether the orange note is being input (true or false)
-    bool strum;    // Represents whether the strum note is being input (true or false)
+    int green;    // Represents whether the green note is being input (true or false)
+    int red;      // Represents whether the red note is being input (true or false)
+    int yellow;   // Represents whether the yellow note is being input (true or false)
+    int blue;     // Represents whether the blue note is being input (true or false)
+    int orange;   // Represents whether the orange note is being input (true or false)
+    int strum;    // Represents whether the strum note is being input (true or false)
     // Add any other necessary fields to represent the state of the note
 } NoteState;
 
