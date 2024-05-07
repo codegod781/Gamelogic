@@ -7,7 +7,6 @@
  */
 
 #include <stdio.h>
-#include "vga_framebuffer.h"
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
