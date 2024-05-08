@@ -15,11 +15,15 @@ default: module hello
 module:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} modules
 
+hello: hello.c package_note.o note_state.o
+    ${CC} -o $@ $^ -pthread
+
 clean:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
 	${RM} hello
+	${RM} *.o
 
-TARFILES = Makefile README hello.c note_reader.h note_reader.c package_note.h package_note.c note_state.c note_stat.h
+ARFILES = Makefile README hello.c note_reader.h note_reader.c package_note.h package_note.c note_state.c note_state.h
 TARFILE = lab3-sw.tar.gz
 .PHONY : tar
 tar : $(TARFILE)
