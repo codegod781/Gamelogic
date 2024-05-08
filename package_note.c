@@ -1,58 +1,58 @@
-/*
- * Userspace program that communicates with the vga_ball device driver
- * through ioctls
- *
- * Stephen A. Edwards
- * Columbia University
- */
-
 #include <stdio.h>
-#include "vga_framebuffer.h"
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
-int notes_fd;
+// Function to convert a hexadecimal character to its binary representation
+char *hex_to_binary(char hex) {
+    switch (hex) {
+        case '0': return "0000";
+        case '1': return "0001";
+        case '2': return "0010";
+        case '3': return "0011";
+        case '4': return "0100";
+        case '5': return "0101";
+        case '6': return "0110";
+        case '7': return "0111";
+        case '8': return "1000";
+        case '9': return "1001";
+        case 'A': return "1010";
+        case 'B': return "1011";
+        case 'C': return "1100";
+        case 'D': return "1101";
+        case 'E': return "1110";
+        case 'F': return "1111";
+        default: return NULL;
+    }
+}
 
-/* Read and print the background color */
-void print_background_color() {
-  printf("call to kernel\n");
-  int arg;
-  
-  if (ioctl(notes_fd, VGA_BALL_READ_BACKGROUND, &arg)) {
-      perror("ioctl(VGA_BALL_READ_BACKGROUND) failed");
-      return;
-  }
-  printf("chunk  = %02x\n", arg);
+// Function to convert a hexadecimal string to its binary representation
+char *hex_string_to_binary(const char *hex_string) {
+    size_t length = strlen(hex_string);
+    size_t binary_length = length * 4; // Each hexadecimal character represents 4 bits
+    char *binary_string = (char *)malloc(binary_length + 1); // +1 for null terminator
+
+    if (binary_string == NULL) {
+        fprintf(stderr, "Memory allocation error\n");
+        return NULL;
+    }
+
+    binary_string[binary_length] = '\0'; // Null terminate the binary string
+
+    for (size_t i = 0; i < length; i++) {
+        char *binary_digit = hex_to_binary(hex_string[i]);
+        if (binary_digit == NULL) {
+            free(binary_string);
+            return NULL;
+        }
+        strcat(binary_string, binary_digit);
+    }
+
+    return binary_string;
 }
 
 
 
-int main()
-{
-  int i;
-  static const char filename[] = "/dev/notes";
 
 
-  printf("Note_reader Userspace program started\n");
 
-  if ( (notes_fd = open(filename, O_RDWR)) == -1) {
-    fprintf(stderr, "could not open %s\n", filename);
-    return -1;
-  }
 
-  printf("initial state: ");
-  print_background_color();
-
-  for (i = 0 ; i < 24 ; i++) {
-    printf("Hello...\n");
-    print_background_color();
-    usleep(400000);
-  }
-  
-  printf("Note_reader Userspace program terminating\n");
-  return 0;
-}

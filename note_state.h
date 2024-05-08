@@ -15,4 +15,10 @@ typedef struct {
     // Add any other necessary fields to represent the state of the note
 } NoteState;
 
-#endif
+// Function to set note state from binary string
+void set_note(NoteState *note_state, const char *binary_string);
+
+// Function to print note state
+void print_note_state(const NoteState *note_state);
+
+#endif /* NOTE_STATE_H */
