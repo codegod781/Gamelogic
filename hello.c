@@ -7,8 +7,8 @@
  */
 
 #include <stdio.h>
-// #include "note_reader.h"
-// #include <sys/ioctl.h>
+#include "note_reader.h"
+#include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -28,16 +28,27 @@ int buffer_index = 0;
 
 int notes_fd;
 
-// void read_note() {
-//   printf("call to kernel\n");
-//   int arg;
-  
-//   if (ioctl(notes_fd, VGA_BALL_READ_BACKGROUND, &arg)) {
-//       perror("ioctl(VGA_BALL_READ_BACKGROUND) failed");
-//       return;
-//   }
-//   printf("chunk  = %02x\n", arg);
-// }
+void read_note() {
+    printf("call to kernel\n");
+    int arg;
+    
+    if (ioctl(notes_fd, VGA_BALL_READ_BACKGROUND, &arg)) {
+        perror("ioctl(VGA_BALL_READ_BACKGROUND) failed");
+        return;
+    }
+    printf("chunk  = %02x\n", arg);
+
+    // Static buffer to hold the string (two characters + null terminator)
+    static char result_string[3];
+
+    // Convert the integer value to a two-digit hexadecimal string
+    snprintf(result_string, 3, "%02x", arg);
+
+    printf("chunk  = %s\n", result_string);
+
+    return result_string;
+
+}
 
 
 // Function to generate a random hexadecimal character
@@ -57,7 +68,7 @@ char* generate_random_hex() {
 void *read_and_buffer(void *arg) {
     for (int i = 0 ; i < 24 ; i++) {
         
-        char *random_hex = generate_random_hex();
+        char *random_hex = readnote();
 
         printf("random hex: %s\n", random_hex);
 
