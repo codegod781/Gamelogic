@@ -34,7 +34,7 @@ char* read_note() {
     
     if (ioctl(notes_fd, VGA_BALL_READ_BACKGROUND, &arg)) {
         perror("ioctl(VGA_BALL_READ_BACKGROUND) failed");
-        return;
+        // return;
     }
     printf("chunk  = %02x\n", arg);
 
