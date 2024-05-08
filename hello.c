@@ -44,7 +44,7 @@ char* read_note() {
     // Convert the integer value to a two-digit hexadecimal string
     snprintf(result_string, 3, "%02x", arg);
 
-    printf("chunk  = %s\n", result_string);
+    printf("string  = %s\n", result_string);
 
     return result_string;
 
@@ -106,6 +106,10 @@ int main()
 
   printf("Welcome to guitar hero\n");
 
+  if ( (notes_fd = open(filename, O_RDWR)) == -1) {
+    fprintf(stderr, "could not open %s\n", filename);
+    return -1;
+  }
   // Seed the random number generator
   srand(time(NULL)); 
 
@@ -119,10 +123,7 @@ int main()
   // Join the thread (never reached in this example)
   pthread_join(tid, NULL);
 
-  // if ( (notes_fd = open(filename, O_RDWR)) == -1) {
-  //   fprintf(stderr, "could not open %s\n", filename);
-  //   return -1;
-  // }
+
 
   printf("initial state: ");
   // read_note();
