@@ -28,7 +28,7 @@ int buffer_index = 0;
 
 int notes_fd;
 
-void read_note() {
+char* read_note() {
     printf("call to kernel\n");
     int arg;
     
