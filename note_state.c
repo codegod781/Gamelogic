@@ -21,7 +21,7 @@ void set_note(NoteState *note_state, const char *binary_string) {
     note_state->yellow = !yellow;
     note_state->blue = !blue;
     note_state->orange = !orange;
-    note_state->strum = !strum;
+    note_state->strum = strum;
 }
 
 void print_note_state(const NoteState *note_state) {
