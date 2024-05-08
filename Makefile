@@ -19,7 +19,7 @@ clean:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
 	${RM} hello
 
-TARFILES = Makefile README hello.c note_reader.h note_reader.c
+TARFILES = Makefile README hello.c note_reader.h note_reader.c package_note.h package_note.c note_state.c note_stat.h
 TARFILE = lab3-sw.tar.gz
 .PHONY : tar
 tar : $(TARFILE)
