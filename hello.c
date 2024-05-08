@@ -68,7 +68,7 @@ char* generate_random_hex() {
 void *read_and_buffer(void *arg) {
     for (int i = 0 ; i < 24 ; i++) {
         
-        char *random_hex = readnote();
+        char *random_hex = read_note();
 
         printf("random hex: %s\n", random_hex);
 
