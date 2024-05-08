@@ -13,7 +13,7 @@ module:
     ${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} modules
 
 hello: hello.c package_note.o note_state.o
-    ${CC} -o $@ $^ -pthread
+    # ${CC} -o $@ $^ -pthread
 
 clean:
     ${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
