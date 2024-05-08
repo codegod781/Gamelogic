@@ -8,12 +8,12 @@ void set_note(NoteState *note_state, const char *binary_string) {
     }
 
     // Convert the binary string to integer values
-    int green = binary_string[0] - '0';
-    int red = binary_string[1] - '0';
-    int yellow = binary_string[2] - '0';
-    int blue = binary_string[3] - '0';
-    int orange = binary_string[4] - '0';
-    int strum = binary_string[5] - '0';
+    int green = binary_string[7] - '0';
+    int red = binary_string[6] - '0';
+    int yellow = binary_string[5] - '0';
+    int blue = binary_string[4] - '0';
+    int orange = binary_string[3] - '0';
+    int strum = binary_string[2] - '0';
 
     // Assign the values to the struct fields
     note_state->green = !green;
