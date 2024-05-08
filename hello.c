@@ -79,7 +79,7 @@ void *read_and_buffer(void *arg) {
 
         NoteState note;
         set_note(&note, binary_string);
-        print_note_state(&note);
+        // print_note_state(&note);
 
 
         pthread_mutex_lock(&buffer_mutex);
@@ -89,7 +89,7 @@ void *read_and_buffer(void *arg) {
         }
         pthread_mutex_unlock(&buffer_mutex);
 
-        usleep(40000); // Sleep for 40000 microseconds
+        usleep(400000); // Sleep for 40000 microseconds
 
     }
     return NULL;
