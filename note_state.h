@@ -16,7 +16,10 @@ typedef struct {
 } NoteState;
 
 // Function to set note state from binary string
+void set_note_guitar(NoteState *note_state, const char *binary_string);
+
 void set_note(NoteState *note_state, const char *binary_string);
+
 
 // Function to print note state
 void print_note_state(const NoteState *note_state);
