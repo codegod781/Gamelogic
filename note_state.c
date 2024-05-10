@@ -38,11 +38,11 @@ void set_note(NoteState *note_state, const char *binary_string) {
     int strum = binary_string[2] - '0';
 
     // Assign the values to the struct fields
-    note_state->green = !green;
-    note_state->red = !red;
-    note_state->yellow = !yellow;
-    note_state->blue = !blue;
-    note_state->orange = !orange;
+    note_state->green = green;
+    note_state->red = red;
+    note_state->yellow = yellow;
+    note_state->blue = blue;
+    note_state->orange = orange;
     note_state->strum = strum;
 }
 

@@ -24,10 +24,8 @@
 #define MAX_ROW_LENGTH 9  // Including null terminator for 8-bit binary number
 
 pthread_mutex_t buffer_mutex = PTHREAD_MUTEX_INITIALIZER;
-char buffer[BUFFER_SIZE];
-
+NoteState buffer[BUFFER_SIZE];
 int buffer_index = 0;
-int expected_note_buffer_index = 0;
 
 int notes_fd;
 
@@ -78,24 +76,24 @@ void *read_and_buffer_input(void *arg) {
 
         printf("random hex: %s\n", random_hex);
 
-        char *binary_string = hex_string_to_binary(random_hex);
+        char *binary_string = hex_string_to_binary('7b');
 
-        printf("Binary: %s\n", binary_string);
+        // printf("Binary: %s\n", binary_string);
 
 
         NoteState note;
         set_note_guitar(&note, binary_string);
-        print_note_state(&note);
+        // print_note_state(&note);
 
 
         pthread_mutex_lock(&buffer_mutex);
         if (buffer_index < BUFFER_SIZE) {
-            buffer[buffer_index++] = *random_hex;
+            buffer[buffer_index++] = note;
             // printf("Generated random hex: %c, Buffer: %s\n", random_hex, buffer);
         }
         pthread_mutex_unlock(&buffer_mutex);
 
-        usleep(400000); // Sleep for 40000 microseconds
+        // usleep(400000); // Sleep for 40000 microseconds
 
     }
     return NULL;
@@ -154,26 +152,31 @@ int main()
 
 
     printf("Welcome to guitar hero\n");
-    printf("here are your notes: \n");
-    for (int i = 0; i < expected_note_buffer_index; i++) {
-        printf("Element %d: ", i);
-        print_note_state(&expected_note_buffer[i]);
-    }
+    // printf("here are your notes: \n");
+    // for (int i = 0; i < expected_note_buffer_index; i++) {
+    //     printf("Element %d: ", i);
+    //     print_note_state(&expected_note_buffer[i]);
+    // }
     
     // Seed the random number generator  
-    //   srand(time(NULL)); 
-    //   // Create thread
-    //   if (pthread_create(&tid, NULL, read_and_buffer_input, NULL) != 0) {
-    //       fprintf(stderr, "Error creating thread\n");
-    //       return 1;
-    //   }
+    srand(time(NULL)); 
+    
+    // Create thread
+    if (pthread_create(&tid, NULL, read_and_buffer_input, NULL) != 0) {
+        fprintf(stderr, "Error creating thread\n");
+        return 1;
+    }
+
+    usleep(4000000);
+
+    for (int i = 0; i < 5; i++) {
+        printf("Element %d: ", i);
+        print_note_state(&buffer[i]);
+    }
+
+    pthread_join(tid, NULL);
 
 
-    //   pthread_join(tid, NULL);
-
-    // for (int i = 0; i < expected_note_buffer_index; i++) {
-    //     free(expected_note_buffer[i]);
-    // }
     
     printf("VGA BALL Userspace program terminating\n");
     return 0;
