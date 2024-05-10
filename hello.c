@@ -70,52 +70,46 @@ char* generate_random_hex() {
 }
 
 
-// // Function to generate a random hexadecimal and add it to the buffer
-// void *read_and_buffer_input(void *arg) {
-//     for (int i = 0 ; i < 20 ; i++) {
+// Function to generate a random hexadecimal and add it to the buffer
+void *read_and_buffer_input(void *arg) {
+    for (int i = 0 ; i < 20 ; i++) {
         
-//         char *random_hex = read_note();
+        char *random_hex = generate_random_hex();
 
-//         printf("random hex: %s\n", random_hex);
+        printf("random hex: %s\n", random_hex);
 
-//         char *binary_string = hex_string_to_binary(random_hex);
+        char *binary_string = hex_string_to_binary(random_hex);
 
-//         printf("Binary: %s\n", binary_string);
-
-
-//         NoteState note;
-//         set_note_guitar(&note, binary_string);
-//         print_note_state(&note);
+        printf("Binary: %s\n", binary_string);
 
 
-//         pthread_mutex_lock(&buffer_mutex);
-//         if (buffer_index < BUFFER_SIZE) {
-//             buffer[buffer_index++] = *random_hex;
-//             // printf("Generated random hex: %c, Buffer: %s\n", random_hex, buffer);
-//         }
-//         pthread_mutex_unlock(&buffer_mutex);
+        NoteState note;
+        set_note_guitar(&note, binary_string);
+        print_note_state(&note);
 
-//         usleep(400000); // Sleep for 40000 microseconds
 
-//     }
-//     return NULL;
-// }
+        pthread_mutex_lock(&buffer_mutex);
+        if (buffer_index < BUFFER_SIZE) {
+            buffer[buffer_index++] = *random_hex;
+            // printf("Generated random hex: %c, Buffer: %s\n", random_hex, buffer);
+        }
+        pthread_mutex_unlock(&buffer_mutex);
 
+        usleep(400000); // Sleep for 40000 microseconds
+
+    }
+    return NULL;
+}
 
 
 
 
 //This opens and reads in the reference file for the song Baracuda
-void process_note_file(char *buffer[], const char *filename, int *index) {
+void process_note_file(NoteState expected_note_buffer[], const char *filename, int *index) {
     printf("process");
     char line[9]; // Buffer to store each line (8 characters + null terminator)
     FILE *file = fopen(filename, "r");
     
-    if (file == NULL) {
-        printf("Unable to open file %s\n", filename);
-        return;
-    }
-
     int i = 0;
     while (fgets(line, sizeof(line), file) != NULL) {
         // Remove the newline character if present
@@ -123,9 +117,10 @@ void process_note_file(char *buffer[], const char *filename, int *index) {
             line[strlen(line) - 1] = '\0';
         }
         if (strlen(line) == 8) {
-            printf("note: %s\n", line);
-            buffer[*index] = malloc(strlen(line) + 1); // +1 for null terminator
-            strcpy(buffer[*index],line); 
+            // printf("note: %s\n", line);
+            NoteState note;
+            set_note(&note, line);
+            expected_note_buffer[*index] = note;
             *index = *index+1;
         }
 
@@ -145,13 +140,9 @@ int main()
     static const char filename[] = "/dev/notes";
     pthread_t tid;
     const char *expected_note_file = "single_note_comaless.txt";
-    char * expected_note_buffer[300];
+    NoteState expected_note_buffer[300];
     int expected_note_buffer_index = 0;
-
-
-    
     process_note_file(expected_note_buffer, expected_note_file, &expected_note_buffer_index); 
-
 
     //   if ( (notes_fd = open(filename, O_RDWR)) == -1) {
     //     fprintf(stderr, "could not open %s\n", filename);
@@ -159,11 +150,15 @@ int main()
     //   }
 
 
+
+
+
     printf("Welcome to guitar hero\n");
     printf("here are your notes: \n");
-        for (int i = 0; i < 5; i++) {
-            printf("Element %d: %s\n", i, expected_note_buffer[i]);
-        }
+    for (int i = 0; i < expected_note_buffer_index; i++) {
+        printf("Element %d: ", i);
+        print_note_state(&expected_note_buffer[i]);
+    }
     
     // Seed the random number generator  
     //   srand(time(NULL)); 
@@ -176,9 +171,9 @@ int main()
 
     //   pthread_join(tid, NULL);
 
-    for (int i = 0; i < expected_note_buffer_index; i++) {
-        free(expected_note_buffer[i]);
-    }
+    // for (int i = 0; i < expected_note_buffer_index; i++) {
+    //     free(expected_note_buffer[i]);
+    // }
     
     printf("VGA BALL Userspace program terminating\n");
     return 0;
