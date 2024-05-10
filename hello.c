@@ -7,8 +7,8 @@
  */
 
 #include <stdio.h>
-#include "note_reader.h"
-#include <sys/ioctl.h>
+// #include "note_reader.h"
+// #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -25,7 +25,7 @@
 
 pthread_mutex_t buffer_mutex = PTHREAD_MUTEX_INITIALIZER;
 char buffer[BUFFER_SIZE];
-char expected_note_buffer[BUFFER_SIZE];
+
 int buffer_index = 0;
 int expected_note_buffer_index = 0;
 
@@ -33,27 +33,27 @@ int notes_fd;
 
 
 
-//Call to kernel
-char* read_note() {
-    printf("call to kernel\n");
-    int arg;
+// //Call to kernel
+// char* read_note() {
+//     printf("call to kernel\n");
+//     int arg;
     
-    if (ioctl(notes_fd, VGA_BALL_READ_BACKGROUND, &arg)) {
-        perror("ioctl(VGA_BALL_READ_BACKGROUND) failed");
-    }
-    printf("chunk  = %02x\n", arg);
+//     if (ioctl(notes_fd, VGA_BALL_READ_BACKGROUND, &arg)) {
+//         perror("ioctl(VGA_BALL_READ_BACKGROUND) failed");
+//     }
+//     printf("chunk  = %02x\n", arg);
 
-    // Static buffer to hold the string (two characters + null terminator)
-    static char result_string[3];
+//     // Static buffer to hold the string (two characters + null terminator)
+//     static char result_string[3];
 
-    // Convert the integer value to a two-digit hexadecimal string
-    snprintf(result_string, 3, "%02x", arg);
+//     // Convert the integer value to a two-digit hexadecimal string
+//     snprintf(result_string, 3, "%02x", arg);
 
-    printf("string  = %s\n", result_string);
+//     printf("string  = %s\n", result_string);
 
-    return result_string;
+//     return result_string;
 
-}
+// }
 
 
 // Function to generate a random hexadecimal character
@@ -70,43 +70,43 @@ char* generate_random_hex() {
 }
 
 
-// Function to generate a random hexadecimal and add it to the buffer
-void *read_and_buffer_input(void *arg) {
-    for (int i = 0 ; i < 20 ; i++) {
+// // Function to generate a random hexadecimal and add it to the buffer
+// void *read_and_buffer_input(void *arg) {
+//     for (int i = 0 ; i < 20 ; i++) {
         
-        char *random_hex = read_note();
+//         char *random_hex = read_note();
 
-        printf("random hex: %s\n", random_hex);
+//         printf("random hex: %s\n", random_hex);
 
-        char *binary_string = hex_string_to_binary(random_hex);
+//         char *binary_string = hex_string_to_binary(random_hex);
 
-        printf("Binary: %s\n", binary_string);
-
-
-        NoteState note;
-        set_note_guitar(&note, binary_string);
-        print_note_state(&note);
+//         printf("Binary: %s\n", binary_string);
 
 
-        pthread_mutex_lock(&buffer_mutex);
-        if (buffer_index < BUFFER_SIZE) {
-            buffer[buffer_index++] = *random_hex;
-            // printf("Generated random hex: %c, Buffer: %s\n", random_hex, buffer);
-        }
-        pthread_mutex_unlock(&buffer_mutex);
+//         NoteState note;
+//         set_note_guitar(&note, binary_string);
+//         print_note_state(&note);
 
-        usleep(400000); // Sleep for 40000 microseconds
 
-    }
-    return NULL;
-}
+//         pthread_mutex_lock(&buffer_mutex);
+//         if (buffer_index < BUFFER_SIZE) {
+//             buffer[buffer_index++] = *random_hex;
+//             // printf("Generated random hex: %c, Buffer: %s\n", random_hex, buffer);
+//         }
+//         pthread_mutex_unlock(&buffer_mutex);
+
+//         usleep(400000); // Sleep for 40000 microseconds
+
+//     }
+//     return NULL;
+// }
 
 
 
 
 
 //This opens and reads in the reference file for the song Baracuda
-void process_note_file(const char *filename) {
+void process_note_file(char *buffer[], const char *filename, int *index) {
     printf("process");
     char line[9]; // Buffer to store each line (8 characters + null terminator)
     FILE *file = fopen(filename, "r");
@@ -115,22 +115,18 @@ void process_note_file(const char *filename) {
         printf("Unable to open file %s\n", filename);
         return;
     }
-    
+
+    int i = 0;
     while (fgets(line, sizeof(line), file) != NULL) {
         // Remove the newline character if present
         if (line[strlen(line) - 1] == '\n') {
             line[strlen(line) - 1] = '\0';
         }
-
         if (strlen(line) == 8) {
             printf("note: %s\n", line);
-
-            //NEEDS TO APPEND TO BUFFER
-
-            else {
-                printf("Buffer overflow. Cannot read more lines.\n");
-                break;
-            }
+            buffer[*index] = malloc(strlen(line) + 1); // +1 for null terminator
+            strcpy(buffer[*index],line); 
+            *index = *index+1;
         }
 
     } 
@@ -145,35 +141,45 @@ void process_note_file(const char *filename) {
 
 int main()
 {
-  int i;
-  static const char filename[] = "/dev/notes";
-  pthread_t tid;
-  const char *expected_note_file = "single_note_comaless.txt";
-  
-  process_note_file(expected_note_file); 
+    int i;
+    static const char filename[] = "/dev/notes";
+    pthread_t tid;
+    const char *expected_note_file = "single_note_comaless.txt";
+    char * expected_note_buffer[300];
+    int expected_note_buffer_index = 0;
 
 
-  if ( (notes_fd = open(filename, O_RDWR)) == -1) {
-    fprintf(stderr, "could not open %s\n", filename);
-    return -1;
-  }
+    
+    process_note_file(expected_note_buffer, expected_note_file, &expected_note_buffer_index); 
 
 
-  printf("Welcome to guitar hero\n");
-  // Seed the random number generator
-  
-  srand(time(NULL)); 
-
-  // Create thread
-  if (pthread_create(&tid, NULL, read_and_buffer_input, NULL) != 0) {
-      fprintf(stderr, "Error creating thread\n");
-      return 1;
-  }
+    //   if ( (notes_fd = open(filename, O_RDWR)) == -1) {
+    //     fprintf(stderr, "could not open %s\n", filename);
+    //     return -1;
+    //   }
 
 
-  pthread_join(tid, NULL);
+    printf("Welcome to guitar hero\n");
+    printf("here are your notes: \n");
+        for (int i = 0; i < 5; i++) {
+            printf("Element %d: %s\n", i, expected_note_buffer[i]);
+        }
+    
+    // Seed the random number generator  
+    //   srand(time(NULL)); 
+    //   // Create thread
+    //   if (pthread_create(&tid, NULL, read_and_buffer_input, NULL) != 0) {
+    //       fprintf(stderr, "Error creating thread\n");
+    //       return 1;
+    //   }
 
-  
-  printf("VGA BALL Userspace program terminating\n");
-  return 0;
+
+    //   pthread_join(tid, NULL);
+
+    for (int i = 0; i < expected_note_buffer_index; i++) {
+        free(expected_note_buffer[i]);
+    }
+    
+    printf("VGA BALL Userspace program terminating\n");
+    return 0;
 }
